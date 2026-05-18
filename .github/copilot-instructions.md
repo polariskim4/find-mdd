@@ -1,3 +1,0 @@
-- Verify the project contains a simple HTML/CSS/JavaScript stock lookup page.
-- The page should accept a Korean stock name and show financial metrics.
-- Provide a README with usage instructions.

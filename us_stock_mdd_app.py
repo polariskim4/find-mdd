@@ -35,13 +35,25 @@ def main():
                 end_date = datetime.now()
                 start_date = end_date - timedelta(days=365 * 11) # 약 11년치
                 
-                data = yf.download(ticker_input, start=start_date, end=end_date)
+                # Ticker 입력값의 공백 제거 및 데이터 다운로드
+                data = yf.download(ticker_input.strip(), start=start_date, end=end_date)
 
                 if data.empty:
                     st.error("데이터를 찾을 수 없습니다. Ticker를 다시 확인해 주세요.")
                     return
 
-                adj_close = data['Adj Close']
+                # yfinance 버전에 따라 컬럼이 MultiIndex로 반환되는 경우 처리
+                if isinstance(data.columns, pd.MultiIndex):
+                    data.columns = data.columns.get_level_values(0)
+
+                # 'Adj Close'가 없으면 'Close'를 사용하도록 유연하게 대응
+                if 'Adj Close' in data.columns:
+                    adj_close = data['Adj Close']
+                elif 'Close' in data.columns:
+                    adj_close = data['Close']
+                else:
+                    st.error("주가 데이터(Adj Close 또는 Close)를 찾을 수 없습니다.")
+                    return
                 
                 # 기간 설정 (1, 2, 3, 5, 10년)
                 periods = {
